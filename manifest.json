@@ -4,6 +4,15 @@
   "version": "0.1",
   "description": "Makes it easier to ask for a code review",
   "icons": {
-    "48": "icons/48.png"
+    "48": "icons/48.png",
+    "512": "icons/512.png"
   },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_icon": {
+      "48": "icons/48.png"
+    }
+  }
 }
