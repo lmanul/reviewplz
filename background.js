@@ -11,9 +11,21 @@ const getReviewTitle = () => {
   });
 }
 
+const getActiveTabUrl = () => {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, function(tabs) {
+      var tab = tabs[0];
+      resolve(tab.url);
+    });
+  })
+}
+
 const copyDescriptionToClipboard = () => {
   getReviewTitle().then(function(title) {
     console.log(title);
+  });
+  getActiveTabUrl().then(function(url) {
+    console.log(url);
   });
 }
 
