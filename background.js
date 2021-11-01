@@ -1,8 +1,19 @@
 const browser = chrome;
 
-function copyDescriptionToClipboard() {
-  browser.tabs.create({
-    url: "https://developer.mozilla.org"
+const getReviewTitle = () => {
+  return new Promise((resolve, reject) => {
+    const executing = browser.tabs.executeScript({
+      code: `document.querySelector('.phui-header-header').textContent`
+    }, function(arr) {
+      const title = arr[0];
+      resolve(title);
+    });
+  });
+}
+
+const copyDescriptionToClipboard = () => {
+  getReviewTitle().then(function(title) {
+    console.log(title);
   });
 }
 
