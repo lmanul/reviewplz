@@ -20,12 +20,22 @@ const getActiveTabUrl = () => {
   })
 }
 
+const copyLinkToClipboard = (link) => {
+  var type = "text/html";
+  var blob = new Blob(['haha'], { type });
+  var data = [new ClipboardItem({ [type]: blob })];
+  navigator.clipboard.write(data).then(
+    function() { console.log('Copied'); }).catch(
+    function(err) { console.log('Failed' + err); }
+    );
+}
+
 const copyDescriptionToClipboard = () => {
   Promise.all([getReviewTitle(), getActiveTabUrl()]).then(function(results) {
     const title = results[0];
     const url = results[1];
     const link = '<a href="' + url + '">' + title + '</a>';
-    console.log(link)
+    copyLinkToClipboard(link);
   });
 }
 
