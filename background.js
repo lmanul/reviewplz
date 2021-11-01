@@ -21,11 +21,11 @@ const getActiveTabUrl = () => {
 }
 
 const copyDescriptionToClipboard = () => {
-  getReviewTitle().then(function(title) {
-    console.log(title);
-  });
-  getActiveTabUrl().then(function(url) {
-    console.log(url);
+  Promise.all([getReviewTitle(), getActiveTabUrl()]).then(function(results) {
+    const title = results[0];
+    const url = results[1];
+    const link = '<a href="' + url + '">' + title + '</a>';
+    console.log(link)
   });
 }
 
