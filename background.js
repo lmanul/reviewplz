@@ -15,11 +15,10 @@ async function copyDescriptionToClipboard() {
           window.setTimeout(function() {
             const title = document.querySelector('.phui-header-header').textContent;
             document.querySelector('.phui-header-header').focus();
-            var type = "text/html";
-            var blob = new Blob([title], { type });
-            var data = [new window.ClipboardItem({ [type]: blob })];
-            // navigator.clipboard.write(data).then(
-            navigator.clipboard.writeText(title).then(
+            var type = "text/plain";
+            var blob = new Blob(['<a href="' + document.location.href + '">' + title + '</a>'], { type });
+            var data = [ new window.ClipboardItem({ [type]: blob }) ];
+            navigator.clipboard.write(data).then(
               function() {
                 console.log('Copied ' + title);
               }, function(err) {
@@ -44,7 +43,4 @@ function getActiveTabUrl() {
   })
 }
 
-// const link = '<a href="' + url + '">' + title + '</a>';
-
 chrome.action.onClicked.addListener(copyDescriptionToClipboard);
-console.log('Loaded');
