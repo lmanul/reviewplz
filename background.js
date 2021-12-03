@@ -14,10 +14,11 @@ async function copyDescriptionToClipboard() {
         if (result.state === 'granted') {
           window.setTimeout(function() {
             const title = document.querySelector('.phui-header-header').textContent;
+            const anchor = '<a href="' + document.location.href + '">' + title + '</a>';
+            var data = [new ClipboardItem({ "text/plain": new Blob(
+                [title], { type: "text/plain" }) })];
+
             document.querySelector('.phui-header-header').focus();
-            var type = "text/plain";
-            var blob = new Blob(['<a href="' + document.location.href + '">' + title + '</a>'], { type });
-            var data = [ new window.ClipboardItem({ [type]: blob }) ];
             navigator.clipboard.write(data).then(
               function() {
                 console.log('Copied ' + title);
