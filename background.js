@@ -23,7 +23,11 @@ async function copyDescriptionToClipboard() {
               function() {
                 console.log('Copied ' + title);
               }, function(err) {
-                console.log('Failed', err);
+                if (('' + err).includes('NotAllowedError')) {
+                  alert('Please click anywhere on the page to focus it first, then try again.');
+                } else {
+                  alert('Unknown error: ' + err);
+                }
               });
           }, 1000);
         }
