@@ -16,20 +16,23 @@ async function copyDescriptionToClipboard() {
             const title = document.querySelector('.phui-header-header').textContent;
             const anchor = '<a href="' + document.location.href + '">' + title + '</a>';
             var data = [new ClipboardItem({ "text/plain": new Blob(
-                [anchor], { type: "text/plain" }) })];
+                [anchor], { type: "text/plain;charset=utf-8" }) })];
 
             document.querySelector('.phui-header-header').focus();
             navigator.clipboard.write(data).then(
               function() {
                 console.log('Copied ' + title);
               }, function(err) {
-                if (('' + err).includes('NotAllowedError')) {
+                const errString = '' + err;
+                if (errString.includes('NotAllowedError') && errString.includes('not focused')) {
                   alert('Please click anywhere on the page to focus it first, then try again.');
                 } else {
                   alert('Unknown error: ' + err);
                 }
               });
           }, 1000);
+        } else {
+          alert('Coud not get permission to write to the clipboard.');
         }
       });
     }});
