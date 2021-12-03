@@ -16,7 +16,7 @@ async function copyDescriptionToClipboard() {
             const title = document.querySelector('.phui-header-header').textContent;
             const anchor = '<a href="' + document.location.href + '">' + title + '</a>';
             var data = [new ClipboardItem({ "text/plain": new Blob(
-                [title], { type: "text/plain" }) })];
+                [anchor], { type: "text/plain" }) })];
 
             document.querySelector('.phui-header-header').focus();
             navigator.clipboard.write(data).then(
