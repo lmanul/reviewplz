@@ -11,17 +11,37 @@ async function copyDescriptionToClipboard() {
     func: function() {
 
       navigator.permissions.query({ name: 'clipboard-write' }).then(result => {
-        if (result.state === 'granted') {
+        if (result.state === 'granted' || result.state === 'prompt') {
           window.setTimeout(function() {
+            let tryHtml = false;
+
             const title = document.querySelector('.phui-header-header').textContent;
             const anchor = '<a href="' + document.location.href + '">' + title + '</a>';
-            const blob = new Blob([anchor], { type: "text/plain;charset=utf-8" });
-            var data = [new ClipboardItem({ "text/plain": blob })];
+            let blob, data;
+            if (tryHtml) {
+              blob = new Blob([anchor], { 'type': 'text/html;charset=utf-8' });
+              data = [new ClipboardItem({ 'text/html': blob })];
+            } else {
+              blob = new Blob([anchor], { 'type': 'text/plain;charset=utf-8' });
+              data = [new ClipboardItem({ 'text/plain': blob })];
+            }
 
             document.querySelector('.phui-header-header').focus();
             navigator.clipboard.write(data).then(
               function() {
                 console.log('Copied ' + title);
+                if (tryHtml) {
+                  navigator.clipboard.read({type: 'text/html'}).then((data) => {
+                    for (let i = 0; i < data.length; i++) {
+                      data[i].getType('text/html').then((blob) => {
+                        console.log(blob);
+                        const resp = new Response(blob);
+                        console.log(resp);
+                        resp.text().then(function(t) { console.log(t); });
+                      });
+                    }
+                  })
+                }
               }, function(err) {
                 const errString = '' + err;
                 if (errString.includes('NotAllowedError') && errString.includes('not focused')) {
