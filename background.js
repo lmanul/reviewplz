@@ -16,23 +16,18 @@ async function copyDescriptionToClipboard() {
             window.setTimeout(function () {
               let tryHtml = false;
 
-              const title = document.querySelector(
-                ".phui-header-header"
-              ).textContent;
-              const anchor =
-                '<a href="' + document.location.href + '">' + title + "</a>";
-              let clipboardItemInput, data;
+              const title = document.querySelector(".phui-header-header").textContent;
+              const anchor = '<a href="' + document.location.href + '">' + title + "</a>";
+
               console.log('Created markup ' + anchor);
               document.querySelector(".phui-header-header").focus();
 
+              const mimeType = "text/" + (tryHtml ? "html" : "plain");
+              const mimeTypeWithCharset = tryHtml ? mimeType : "text/plain;charset=utf-8";
+
               try {
-                if (tryHtml) {
-                  const blob = new Blob([anchor], { type: "text/html" });
-                  clipboardItemInput = new ClipboardItem({"text/html": blob});
-                } else {
-                  const blob = new Blob([anchor], { type: "text/plain;charset=utf-8" });
-                  clipboardItemInput = new ClipboardItem({"text/plain": blob});
-                }
+                const blob = new Blob([anchor], { type: mimeTypeWithCharset });
+                const clipboardItemInput = new ClipboardItem({[mimeType]: blob});
                 navigator.clipboard.write([clipboardItemInput]).then(() => {
                   console.log("Wrote to clipboard");
                   console.log(clipboardItemInput);
