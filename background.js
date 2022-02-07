@@ -28,13 +28,10 @@ async function copyDescriptionToClipboard() {
               el.style.position = 'fixed';
               el.style.backgroundColor = bgColor;
               el.style.borderRadius = '1ex';
-              el.style.width = '200px';
               el.style.padding = '2ex';
-              el.style.margin = '0px auto';
-              el.style.top = '100px';
-              el.style.left = '100px';
+              el.style.top = '10px';
+              el.style.right = '10px';
               el.style.zIndex = '100';
-              el.style.textAlign = 'center';
               el.setAttribute('id', BUTTER_BAR_ID);
               el.textContent = message;
               document.body.appendChild(el);
