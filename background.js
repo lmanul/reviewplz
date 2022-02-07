@@ -52,7 +52,7 @@ async function copyDescriptionToClipboard() {
               });
           }, 1000);
         } else {
-          alert('Coud not get permission to write to the clipboard.');
+          alert('Could not get permission to write to the clipboard.');
         }
       });
     }});
