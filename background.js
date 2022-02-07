@@ -22,11 +22,12 @@ async function copyDescriptionToClipboard() {
               }
             };
             
-            const showButterBar = (message) => {
+            const showButterBar = (message, bgColor) => {
               clearButterBar();
               const el = document.createElement('div');
               el.style.position = 'fixed';
-              el.style.backgroundColor = 'yellow';
+              el.style.backgroundColor = bgColor;
+              el.style.borderRadius = '1ex';
               el.style.width = '200px';
               el.style.padding = '2ex';
               el.style.margin = '0px auto';
@@ -55,14 +56,15 @@ async function copyDescriptionToClipboard() {
               const blob = new Blob([anchor], { type: mimeTypeWithCharset });
               const clipboardItemInput = new ClipboardItem({[mimeType]: blob});
               navigator.clipboard.write([clipboardItemInput]).then(() => {
-                showButterBar('Copied to clipboard');
+                showButterBar('Copied to clipboard', '#5eff8f');
                 console.log(clipboardItemInput);
               }).catch((err) => {
                 const errString = '' + err;
                 if (errString.includes('NotAllowedError') && errString.includes('not focused')) {
-                  showButterBar('Please click anywhere on the page to focus it first, then try again.');
+                  showButterBar('Please click anywhere on the page to focus it first, then try again.',
+                                'yellow');
                 } else {
-                  showButterBar('Unknown error: ' + errString);
+                  showButterBar('Unknown error: ' + errString, 'yellow');
                 }
               });
             } catch (e) {
