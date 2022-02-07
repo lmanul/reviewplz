@@ -58,13 +58,4 @@ async function copyDescriptionToClipboard() {
     }});
 }
 
-function getActiveTabUrl() {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, function(tabs) {
-      var tab = tabs[0];
-      resolve(tab.url);
-    });
-  })
-}
-
 chrome.action.onClicked.addListener(copyDescriptionToClipboard);
