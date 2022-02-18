@@ -14,14 +14,15 @@ async function copyDescriptionToClipboard() {
         .then((result) => {
           if (result.state === "granted" || result.state === "prompt") {
             const BUTTER_BAR_ID = 'reviewplz-notif';
-            
+            const COPY_ELEMENT_ID = 'reviewplz-cpy';
+
             const clearButterBar = () => {
               const el = document.getElementById(BUTTER_BAR_ID);
               if (!!el) {
                 document.body.removeChild(el);
               }
             };
-            
+
             const showButterBar = (message, bgColor) => {
               clearButterBar();
               const el = document.createElement('div');
@@ -35,20 +36,62 @@ async function copyDescriptionToClipboard() {
               el.setAttribute('id', BUTTER_BAR_ID);
               el.textContent = message;
               document.body.appendChild(el);
-              
+
               window.setTimeout(clearButterBar, 4000);
             };
-            
-            let tryHtml = false;
-            
+
+            const cleanUp = () => {
+              // Clean up any previous elements
+              let previous = document.getElementById(COPY_ELEMENT_ID);
+              while (!!previous) {
+                previous.parentNode.removeChild(previous);
+                previous = document.getElementById(COPY_ELEMENT_ID);
+              }
+            };
+
+            const createElementWithMarkup = (markup) => {
+              cleanUp();
+              const el = document.createElement('span');
+              el.setAttribute('id', COPY_ELEMENT_ID);
+              // el.style.visibility = 'hidden';
+              el.innerHTML = markup;
+              document.body.appendChild(el);
+              console.log(el);
+            };
+
+            const performCopy = () => {
+              var el = document.getElementById(COPY_ELEMENT_ID);
+              let selection = window.getSelection();
+              let range = document.createRange();
+              range.selectNodeContents(el);
+              selection.removeAllRanges();
+              selection.addRange(range);
+              const supported = document.execCommand('copy', false, null);
+              if (supported) {
+                showButterBar('Copied to clipboard', '#5eff8f');
+              } else {
+                showButterBar('It looks like copying to the clipboard is not supported :-/',
+                             'yellow');
+              }
+              cleanUp();
+            };
+
+            let tryHtml = true;
+
             const title = document.querySelector(".phui-header-header").textContent;
             const anchor = '<a href="' + document.location.href + '">' + title + "</a>";
-            
-            console.log('Created markup ' + anchor);
-            
+
             const mimeType = "text/" + (tryHtml ? "html" : "plain");
             const mimeTypeWithCharset = mimeType + (tryHtml ? '' : ';charset=utf-8');
-            
+
+            if (tryHtml) {
+              createElementWithMarkup(anchor);
+              performCopy();
+              return;
+            }
+
+            // The Clipboard API doesn't seem to support HTML content yet.
+            // Leaving this unreachable code around for when it works better.
             try {
               const blob = new Blob([anchor], { type: mimeTypeWithCharset });
               const clipboardItemInput = new ClipboardItem({[mimeType]: blob});
