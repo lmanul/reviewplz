@@ -1,0 +1,44 @@
+.form-review {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.btn-submit {
+  cursor: pointer;
+  border: 1px solid #1c9cef;
+  background-color: #1c9cef;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.15),
+    0px 2px 4px 1px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s;
+  border-radius: 9999px;
+  padding: 0.5rem 0;
+  color: white;
+  width: 150px;
+  margin: 0 auto;
+  display: block;
+}
+
+.btn-submit:hover,
+.btn-submit:active {
+  box-shadow: 0px 2px 4px 1px rgb(0 0 0 / 15%), 0px 4px 8px 1px rgb(0 0 0 / 10%);
+  border: 1px solid #058de5;
+  background-color: #058de5;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+select {
+  width: 100%;
+  padding: 0.25rem;
+  background: rgb(20 115 176 / 7%);
+  border: 1px solid rgb(20 115 176 / 22%);
+  border-radius: 5px;
+  color: #1473b0;
+  margin-bottom: 1rem;
+}
