@@ -109,7 +109,7 @@ async function copyDescriptionToClipboard({ urgency, size }) {
 
             const markup = `
               <a href=${document.location.href}>
-                ${title}
+                <b>${title}</b>
               </a>
               <br />
               <div>${decorateSizeAndUngency()}</div>`;
