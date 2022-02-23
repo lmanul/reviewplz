@@ -14,7 +14,8 @@
   "action": {
     "default_icon": {
       "48": "icons/48.png"
-    }
+    },
+    "default_popup": "popup.html"
   },
   "permissions": [
     "activeTab",
