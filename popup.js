@@ -48,11 +48,11 @@
   }
 
   function initPopup() {
-    form.elements.urgency.addEventListener('change', (e) => {
+    form.elements.urgency.addEventListener('input', (e) => {
       renderStars(urgencyStarContainer, Number(e.target.value));
     });
 
-    form.elements.size.addEventListener('change', (e) => {
+    form.elements.size.addEventListener('input', (e) => {
       renderStars(sizeStarContainer, Number(e.target.value));
     });
 
