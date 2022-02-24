@@ -34,8 +34,11 @@ async function copyDescriptionToClipboard({ urgency, size }) {
               el.style.backgroundColor = bgColor;
               el.style.borderRadius = '1ex';
               el.style.padding = '2ex';
-              el.style.top = '185px';
-              el.style.right = '140px';
+              el.style.margin = 'auto';
+              el.style.maxWidth = '200px';
+              el.style.top = '40px';
+              el.style.right = '0';
+              el.style.left = '0';
               el.style.zIndex = '100';
               el.setAttribute('id', BUTTER_BAR_ID);
               el.textContent = message;
@@ -83,21 +86,26 @@ async function copyDescriptionToClipboard({ urgency, size }) {
               cleanUp();
             };
 
-            const decorateSizeAndUngency = () => {
+            const valueToStarEmoji = (value) => {
+              return [...Array(3).keys()]
+                .map((value) => value + 1)
+                .map((index) => {
+                  if (value >= index * 2) {
+                    return ':filled_star:';
+                  } else {
+                    return Math.abs(value - index * 2) === 1
+                      ? ':half_star:'
+                      : ':empty_star:';
+                  }
+                })
+                .join('');
+            };
+
+            const decorateSizeAndUrgency = () => {
               let result = 'Size: ';
-              Array(3)
-                .fill('')
-                .forEach((_, index) => {
-                  result +=
-                    index + 1 <= size ? ':filled_star:' : ':empty_star:';
-                });
+              result += valueToStarEmoji(size);
               result += '  Urgency: ';
-              Array(3)
-                .fill('')
-                .forEach((_, index) => {
-                  result +=
-                    index + 1 <= urgency ? ':filled_star:' : ':empty_star:';
-                });
+              result += valueToStarEmoji(urgency);
 
               return result;
             };
@@ -112,7 +120,7 @@ async function copyDescriptionToClipboard({ urgency, size }) {
                 <b>${title}</b>
               </a>
               <br />
-              <div>${decorateSizeAndUngency()}</div>`;
+              <div>${decorateSizeAndUrgency()}</div>`;
 
             const mimeType = 'text/' + (tryHtml ? 'html' : 'plain');
             const mimeTypeWithCharset =

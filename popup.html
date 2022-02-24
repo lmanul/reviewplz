@@ -1,24 +1,49 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="range.css">
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
     <form class="js-review-form form-review" name="review">
       <label for="size">Size</label>
-      <select name="size">
-        <option value="1" selected>Small</option>
-        <option value="2">Medium</option>
-        <option value="3">Large</option>
-      </select>
+      <div class="star-container js-size-stars"></div>
+      <input type="range" id="size" name="size" min="1" max="6" value="2">
+
       <label for="urgency">Urgency</label>
-      <select name="urgency">
-        <option value="1" selected>Low</option>
-        <option value="2">Medium</option>
-        <option value="3">High</option>
-      </select>
+      <div class="star-container js-urgency-stars"></div>
+      <input type="range" id="urgency" name="urgency" min="1" max="6" value="4">
+
       <button class="btn-submit" type="submit">Copy to clipboard</button>
     </form>
+    <svg id="star-gradient-defs" width="0" height="0" viewBox="0 0 0 0">
+      <title>Star fill gradients</title>
+      <defs>
+        <linearGradient id="halfFullGradient">
+          <stop offset="50%" stop-color="#f3cc00">
+            <animate dur="0.25s" attributeName="offset" fill="freeze" from="0" to="0.5" />
+          </stop>
+          <stop offset="50%" stop-color="#f6f6f8">
+          </stop>
+        </linearGradient>
+      </defs>
+      <defs>
+        <linearGradient id="fullGradient">
+          <stop offset="0" stop-color="#f3cc00">
+            <animate dur="0.25s" attributeName="offset" fill="freeze" from="0" to="1" />
+          </stop>
+          <stop offset="0" stop-color="#f6f6f8">
+            <animate dur="1s" attributeName="offset" fill="freeze" from="0" to="1" />
+          </stop>
+        </linearGradient>
+      </defs>
+      <defs>
+        <linearGradient id="emptyGradient">
+          <stop offset="0" stop-color="#f6f6f8">
+          </stop>
+        </linearGradient>
+      </defs>
+    </svg>
     <script src="popup.js"></script>
   </body>
 </html>
