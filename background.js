@@ -77,9 +77,7 @@ async function copyDescriptionToClipboard({ urgency, size }) {
               selection.addRange(range);
 
               const supported = document.execCommand('copy', false, null);
-              if (supported) {
-                showButterBar('Copied to clipboard', '#5eff8f');
-              } else {
+              if (!supported) {
                 showButterBar(
                   'It looks like copying to the clipboard is not supported :-/',
                   'yellow'
@@ -144,7 +142,6 @@ async function copyDescriptionToClipboard({ urgency, size }) {
               navigator.clipboard
                 .write([clipboardItemInput])
                 .then(() => {
-                  showButterBar('Copied to clipboard', '#5eff8f');
                   console.log(clipboardItemInput);
                 })
                 .catch((err) => {
