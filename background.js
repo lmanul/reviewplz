@@ -63,7 +63,6 @@ async function copyDescriptionToClipboard({ urgency, size }) {
               // el.style.visibility = 'hidden';
               el.innerHTML = markup;
               document.body.appendChild(el);
-              console.log(el);
             };
 
             const performCopy = () => {
