@@ -29,6 +29,11 @@
   background-color: #058de5;
 }
 
+.btn-submit.btn-submitted {
+  border-color: #2ba637;
+  background-color: #2ba637;
+}
+
 label {
   display: block;
   margin-bottom: 0.5rem;

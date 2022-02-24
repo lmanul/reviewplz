@@ -6,6 +6,9 @@ async function getCurrentTab() {
 
 async function copyDescriptionToClipboard({ urgency, size }) {
   let currentTab = await getCurrentTab();
+  if (!currentTab) {
+    return;
+  }
   chrome.scripting.executeScript({
     target: { tabId: currentTab.id },
     args: [{ urgency, size }],

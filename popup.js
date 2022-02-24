@@ -4,6 +4,12 @@
   const form = document.querySelector('.js-review-form');
   const sizeStarContainer = document.querySelector('.js-size-stars');
   const urgencyStarContainer = document.querySelector('.js-urgency-stars');
+  const copyToClipboardButton = document.querySelector('.btn-submit');
+
+  const copyToClipboardButtonInitialText = 'Copy to clipboard';
+  const copyToClipboardButtonSubmittedText = 'Copied!';
+
+  const copyToClipboardButtonSubmittedClassName = 'btn-submitted';
 
   const StarFill = {
     EMPTY: 'empty',
@@ -48,6 +54,8 @@
   }
 
   function initPopup() {
+    copyToClipboardButton.textContent = copyToClipboardButtonInitialText;
+
     form.elements.urgency.addEventListener('input', (e) => {
       renderStars(urgencyStarContainer, Number(e.target.value));
     });
@@ -70,6 +78,16 @@
     port.onMessage.addListener(function (msg) {
       if (msg.event === 'clipboard.created') {
         console.log('Clipboard created', msg);
+        copyToClipboardButton.textContent = copyToClipboardButtonSubmittedText;
+        copyToClipboardButton.classList.add(
+          copyToClipboardButtonSubmittedClassName);
+
+        // Restore the initial button after a delay.
+        window.setTimeout(() => {
+          copyToClipboardButton.textContent = copyToClipboardButtonInitialText;
+          copyToClipboardButton.classList.remove(
+            copyToClipboardButtonSubmittedClassName);
+        }, 2000);
       }
     });
 
