@@ -80,18 +80,31 @@
         console.log('Clipboard created', msg);
         copyToClipboardButton.textContent = copyToClipboardButtonSubmittedText;
         copyToClipboardButton.classList.add(
-          copyToClipboardButtonSubmittedClassName);
+          copyToClipboardButtonSubmittedClassName
+        );
 
         // Restore the initial button after a delay.
         window.setTimeout(() => {
           copyToClipboardButton.textContent = copyToClipboardButtonInitialText;
           copyToClipboardButton.classList.remove(
-            copyToClipboardButtonSubmittedClassName);
+            copyToClipboardButtonSubmittedClassName
+          );
         }, 2000);
+      } else if (msg.event === 'review_size:calculated') {
+        // Initial render of size stars happen here
+        const { size } = msg.data;
+
+        form.elements.size.value = Number(size);
+        renderStars(sizeStarContainer, Number(size));
       }
     });
 
-    renderStars(sizeStarContainer, Number(form.elements.size.value));
+    // We post this message to let the background script know that it could deal with
+    // Size calculation and any other preparation
+    port.postMessage({
+      event: 'review_form.mounted',
+    });
+
     renderStars(urgencyStarContainer, Number(form.elements.urgency.value));
   }
 
