@@ -98,7 +98,7 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
                         : ':empty_star:';
                     }
                   })
-                  .join('');
+                  .join('\u200a');
               };
 
               const decorateSizeAndUrgency = () => {
