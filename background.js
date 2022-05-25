@@ -185,7 +185,7 @@ async function calculateReviewSize({ onMessage }) {
     {
       target: { tabId: currentTab.id },
       func: () => {
-        const DIFF_TABLE_ROW_SELECTOR = '.alt-diff-toc-changeset-row';
+        const DIFF_TABLE_ROW_SELECTOR = '.diff-toc-changeset-row, .alt-diff-toc-changeset-row';
 
         const sizeFromNumberOflinesChanged = (lineCount) => {
           switch (true) {
@@ -214,7 +214,7 @@ async function calculateReviewSize({ onMessage }) {
           document.querySelectorAll(DIFF_TABLE_ROW_SELECTOR)
         ).reduce((agg, el) => {
           const linesMatch = el.textContent.match(/(\d+) lines/);
-          return Number(linesMatch[1]) + agg;
+          return (!!linesMatch ? Number(linesMatch[1]) : 0) + agg;
         }, 0);
 
         return sizeFromNumberOflinesChanged(numberOfLinesChanged);
