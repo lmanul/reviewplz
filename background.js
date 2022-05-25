@@ -98,6 +98,8 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
                         : ':empty_star:';
                     }
                   })
+                  // This separator is needed for stars not to disappear in
+                  // certain mobile browsers.
                   .join('\u200a');
               };
 
