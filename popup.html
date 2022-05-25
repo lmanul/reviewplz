@@ -6,7 +6,9 @@
   </head>
   <body>
     <form class="js-review-form form-review" name="review">
-      <label for="size">Size</label>
+      <label for="size" class="inline">Size
+        <span id="autodetect">(<span id="autodetect-line-count"></span> changed lines)</span>
+      </label>
       <div class="star-container js-size-stars"></div>
       <input type="range" id="size" name="size" min="1" max="6" value="2">
 

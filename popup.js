@@ -92,8 +92,14 @@
         }, 2000);
       } else if (msg.event === 'review_size:calculated') {
         // Initial render of size stars happen here
-        const { size } = msg.data;
+        const { size, lineCount } = msg.data;
 
+        const autodetectEl = document.getElementById('autodetect');
+        const autodetectLineCountEl = document.getElementById('autodetect-line-count');
+        if (lineCount > 0) {
+          autodetectEl.style.display = 'inline';
+          autodetectLineCountEl.textContent = lineCount;
+        }
         form.elements.size.value = Number(size);
         renderStars(sizeStarContainer, Number(size));
       }

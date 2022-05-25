@@ -39,6 +39,17 @@ label {
   margin-bottom: 0.5rem;
 }
 
+#autodetect {
+  color: #ccc;
+  display: none;
+  font-size: x-small;
+  margin-left: 1ex;
+}
+
+#autodetect-line-count {
+  color: #777;
+}
+
 .star-container {
   min-height: 32px;
 }

@@ -217,16 +217,24 @@ async function calculateReviewSize({ onMessage }) {
           return (!!linesMatch ? Number(linesMatch[1]) : 0) + agg;
         }, 0);
 
-        return sizeFromNumberOflinesChanged(numberOfLinesChanged);
+        // If we find 0 changed lines, it probably means we weren't able to
+        // detect the real number. Let's use the default size then.
+        if (numberOfLinesChanged === 0) {
+          // One full star.
+          return 2;
+        }
+        return [sizeFromNumberOflinesChanged(numberOfLinesChanged), numberOfLinesChanged];;
       },
     },
     (injectionResults) => {
       for (const frameResult of injectionResults) {
-        const size = frameResult.result;
+        const size = frameResult.result[0];
+        const lineCount = frameResult.result[1];
 
         onMessage({
           event: 'review_size:calculated',
           data: {
+            lineCount,
             size,
           },
         });
