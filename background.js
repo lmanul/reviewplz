@@ -213,7 +213,7 @@ async function calculateReviewSize({ onMessage }) {
         const numberOfLinesChanged = Array.from(
           document.querySelectorAll(DIFF_TABLE_ROW_SELECTOR)
         ).reduce((agg, el) => {
-          const linesMatch = el.textContent.match(/(\d+) lines/);
+          const linesMatch = el.textContent.match(/(\d+) lines?/);
           return (!!linesMatch ? Number(linesMatch[1]) : 0) + agg;
         }, 0);
 
