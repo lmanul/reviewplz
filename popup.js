@@ -4,8 +4,10 @@
   const form = document.querySelector('.js-review-form');
   const sizeStarContainer = document.querySelector('.js-size-stars');
   const urgencyStarContainer = document.querySelector('.js-urgency-stars');
+  const reviewersContainer = document.querySelector('.js-reviewers');
+  const reviewersNoneButton = document.querySelector('.btn-reviewers-none');
   const copyToClipboardButton = document.querySelector('.btn-submit');
-
+  const note = document.querySelector('.js-note');
   const copyToClipboardButtonInitialText = 'Copy to clipboard';
   const copyToClipboardButtonSubmittedText = 'Copied!';
 
@@ -53,6 +55,33 @@
       .beginElement();
   }
 
+  function renderReviewers(container, requestedReviewers) {
+    if (!requestedReviewers.length) {
+      return;
+    }
+    const list = document.createElement('ul');
+    requestedReviewers.forEach((reviewer) => {
+      const li = document.createElement('li');
+      list.appendChild(li);
+
+      const label = document.createElement('label');
+      li.appendChild(label);
+
+      const checkbox = document.createElement('input');
+      checkbox.id = 'reviewers';
+      checkbox.type = 'checkbox';
+      checkbox.checked = true;
+      checkbox.value = reviewer;
+      label.appendChild(checkbox);
+
+      const text = document.createTextNode('@' + reviewer);
+      label.appendChild(text);
+    });
+
+    reviewersContainer.appendChild(list);
+    reviewersContainer.classList.add('visible');
+  }
+
   function initPopup() {
     copyToClipboardButton.textContent = copyToClipboardButtonInitialText;
 
@@ -64,15 +93,29 @@
       renderStars(sizeStarContainer, Number(e.target.value));
     });
 
+    reviewersNoneButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      Array.from(
+        reviewersContainer.querySelectorAll('input[type=checkbox]')
+      ).forEach((checkbox) => (checkbox.checked = false));
+    });
+
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const urgency = Number(form.elements.urgency.value);
       const size = Number(form.elements.size.value);
+      const ccReviewers = Array.from(form.elements.reviewers || [])
+        .filter((node) => node.checked)
+        .map((node) => node.value);
 
       port.postMessage({
         event: 'review_form.submitted',
-        data: { urgency, size },
+        data: { urgency, size, ccReviewers },
       });
+
+      if (ccReviewers.length) {
+        note.classList.add('visible');
+      }
     });
 
     port.onMessage.addListener(function (msg) {
@@ -89,19 +132,24 @@
           copyToClipboardButton.classList.remove(
             copyToClipboardButtonSubmittedClassName
           );
+          note.classList.remove('visible');
         }, 2000);
-      } else if (msg.event === 'review_size:calculated') {
+      } else if (msg.event === 'review_data.result') {
         // Initial render of size stars happen here
-        const { size, lineCount } = msg.data;
+        const { size, lineCount, requestedReviewers } = msg.data;
 
         const autodetectEl = document.getElementById('autodetect');
-        const autodetectLineCountEl = document.getElementById('autodetect-line-count');
+        const autodetectLineCountEl = document.getElementById(
+          'autodetect-line-count'
+        );
         if (lineCount > 0) {
           autodetectEl.style.display = 'inline';
           autodetectLineCountEl.textContent = lineCount;
         }
         form.elements.size.value = Number(size);
         renderStars(sizeStarContainer, Number(size));
+
+        renderReviewers(reviewersContainer, requestedReviewers);
       }
     });
 
