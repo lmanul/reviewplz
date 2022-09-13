@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Review Plz",
-  "version": "0.6",
+  "version": "0.7",
   "description": "Makes it easier to ask for a code review",
   "icons": {
     "48": "icons/48.png",
