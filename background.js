@@ -4,7 +4,7 @@ async function getCurrentTab() {
   return tab;
 }
 
-async function copyToClipboard({ urgency, size }, { onMessage }) {
+async function copyToClipboard(data, { onMessage }) {
   let currentTab = await getCurrentTab();
   if (!currentTab) {
     return;
@@ -12,9 +12,9 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
   chrome.scripting.executeScript(
     {
       target: { tabId: currentTab.id },
-      args: [{ urgency, size }],
+      args: [data],
       func: (reviewData) => {
-        const { size, urgency } = reviewData;
+        const { size, urgency, ccReviewers } = reviewData;
         const PHAB_TITLE_SELECTOR = '.phui-header-header';
 
         navigator.permissions
@@ -87,20 +87,22 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
               };
 
               const valueToStarEmoji = (value) => {
-                return [...Array(3).keys()]
-                  .map((value) => value + 1)
-                  .map((index) => {
-                    if (value >= index * 2) {
-                      return ':filled_star:';
-                    } else {
-                      return Math.abs(value - index * 2) === 1
-                        ? ':half_star:'
-                        : ':empty_star:';
-                    }
-                  })
-                  // This separator is needed for stars not to disappear in
-                  // certain mobile browsers.
-                  .join('\u200a');
+                return (
+                  [...Array(3).keys()]
+                    .map((value) => value + 1)
+                    .map((index) => {
+                      if (value >= index * 2) {
+                        return ':filled_star:';
+                      } else {
+                        return Math.abs(value - index * 2) === 1
+                          ? ':half_star:'
+                          : ':empty_star:';
+                      }
+                    })
+                    // This separator is needed for stars not to disappear in
+                    // certain mobile browsers.
+                    .join('\u200a')
+                );
               };
 
               const decorateSizeAndUrgency = () => {
@@ -110,6 +112,16 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
                 result += valueToStarEmoji(urgency);
 
                 return result;
+              };
+
+              const decorateCcReviewers = () => {
+                if (!ccReviewers?.length) {
+                  return '';
+                }
+
+                const reviewers = ccReviewers.map((r) => '@' + r).join(' ');
+
+                return `<div>cc ${reviewers}</div>`;
               };
 
               let tryHtml = true;
@@ -122,7 +134,8 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
                 <b>${title}</b>
               </a>
               <br />
-              <div>${decorateSizeAndUrgency()}</div>`;
+              <div>${decorateSizeAndUrgency()}</div>
+              ${decorateCcReviewers()}`;
 
               const mimeType = 'text/' + (tryHtml ? 'html' : 'plain');
               const mimeTypeWithCharset =
@@ -179,64 +192,120 @@ async function copyToClipboard({ urgency, size }, { onMessage }) {
   );
 }
 
-async function calculateReviewSize({ onMessage }) {
+// this function is serialized to text and run in the main window,
+// so everything it references must be inside this closure scope
+function main() {
+  function $(selector, node = document) {
+    return Array.from(node.querySelectorAll(selector));
+  }
+
+  function getRequestedReviewers() {
+    try {
+      // it's a little ugly, but we scrape reviwer name from the dom text,
+      // and then get reviewer status by associating it with preloaded phab data
+      // form the tooltip
+
+      const phabData = JSON.parse(
+        $('data')?.[0].getAttribute('data-javelin-init-data') || '{data: {}}'
+      ).data;
+
+      function getPhabTooltip(node) {
+        const dataId = node.getAttribute('data-meta').replace('0_', '');
+        return phabData[dataId].tip;
+      }
+
+      const reviewersList = $('.phui-property-list-properties').filter(
+        (n) => n.children[0]?.textContent.trim() === 'Reviewers'
+      )?.[0];
+
+      const requestedReviewers = $('.phui-link-person', reviewersList)
+        .filter((node) => {
+          // some things that should be groups are erroneously classed as users,
+          // skip them
+          return !node.textContent.startsWith('web-');
+        })
+        .map((node) => {
+          const name = node.textContent;
+          const status = $('[data-sigil=has-tooltip]', node.parentNode).map(
+            getPhabTooltip
+          )[0];
+
+          return { name, status };
+        })
+        .filter((r) => r.status === 'Review Requested')
+        .map((r) => r.name);
+
+      return requestedReviewers;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function sizeFromNumberOflinesChanged(lineCount) {
+    switch (true) {
+      case lineCount === 0: {
+        // If we find 0 changed lines, it probably means we weren't able to
+        // detect the real number. Let's use the default size then.
+        // One full star.
+        return 2;
+      }
+      case lineCount <= 100: {
+        return 1;
+      }
+      case lineCount <= 200: {
+        return 2;
+      }
+      case lineCount <= 250: {
+        return 3;
+      }
+      case lineCount <= 400: {
+        return 4;
+      }
+      case lineCount <= 700: {
+        return 5;
+      }
+      default: {
+        return 6;
+      }
+    }
+  }
+
+  function getLineCount() {
+    const DIFF_TABLE_ROW_SELECTOR =
+      '.diff-toc-changeset-row, .alt-diff-toc-changeset-row';
+
+    const numberOfLinesChanged = $(DIFF_TABLE_ROW_SELECTOR).reduce(
+      (agg, el) => {
+        const linesMatch = el.textContent.match(/(\d+) lines?/);
+        return (!!linesMatch ? Number(linesMatch[1]) : 0) + agg;
+      },
+      0
+    );
+
+    return numberOfLinesChanged;
+  }
+
+  const lineCount = getLineCount();
+  const size = sizeFromNumberOflinesChanged(lineCount);
+  const requestedReviewers = getRequestedReviewers();
+
+  return { lineCount, size, requestedReviewers };
+}
+
+async function getReviewData({ onMessage }) {
   let currentTab = await getCurrentTab();
   chrome.scripting.executeScript(
     {
       target: { tabId: currentTab.id },
-      func: () => {
-        const DIFF_TABLE_ROW_SELECTOR = '.diff-toc-changeset-row, .alt-diff-toc-changeset-row';
-
-        const sizeFromNumberOflinesChanged = (lineCount) => {
-          switch (true) {
-            case lineCount <= 100: {
-              return 1;
-            }
-            case lineCount <= 200: {
-              return 2;
-            }
-            case lineCount <= 250: {
-              return 3;
-            }
-            case lineCount <= 400: {
-              return 4;
-            }
-            case lineCount <= 700: {
-              return 5;
-            }
-            default: {
-              return 6;
-            }
-          }
-        };
-
-        const numberOfLinesChanged = Array.from(
-          document.querySelectorAll(DIFF_TABLE_ROW_SELECTOR)
-        ).reduce((agg, el) => {
-          const linesMatch = el.textContent.match(/(\d+) lines?/);
-          return (!!linesMatch ? Number(linesMatch[1]) : 0) + agg;
-        }, 0);
-
-        // If we find 0 changed lines, it probably means we weren't able to
-        // detect the real number. Let's use the default size then.
-        if (numberOfLinesChanged === 0) {
-          // One full star.
-          return 2;
-        }
-        return [sizeFromNumberOflinesChanged(numberOfLinesChanged), numberOfLinesChanged];;
-      },
+      func: main,
     },
     (injectionResults) => {
       for (const frameResult of injectionResults) {
-        const size = frameResult.result[0];
-        const lineCount = frameResult.result[1];
-
+        const data = frameResult.result;
+        console.log(data);
         onMessage({
-          event: 'review_size:calculated',
-          data: {
-            lineCount,
-            size,
-          },
+          event: 'review_data.result',
+          data,
         });
       }
     }
@@ -246,11 +315,11 @@ async function calculateReviewSize({ onMessage }) {
 chrome.runtime.onConnect.addListener(function (port) {
   port.onMessage.addListener(function (msg) {
     if (msg.event === 'review_form.mounted') {
-      calculateReviewSize({
+      getReviewData({
         onMessage(message) {
           const { event, data } = message;
 
-          if (event === 'review_size:calculated') {
+          if (event === 'review_data.result') {
             port.postMessage({ event, data });
           }
         },
